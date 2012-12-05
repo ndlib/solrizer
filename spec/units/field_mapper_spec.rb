@@ -6,7 +6,7 @@ describe Solrizer::FieldMapper do
   
   class TestMapper0 < Solrizer::FieldMapper
     id_field 'ident'
-    index_as :searchable, :suffix => '_s',    :default => true
+    index_as :searchable, :suffix => '_s'
     index_as :edible,     :suffix => '_food'
     index_as :laughable,  :suffix => '_haha', :default => true do |type|
       type.integer :suffix => '_ihaha' do |value, field_name|
@@ -117,11 +117,9 @@ describe Solrizer::FieldMapper do
     
     it "should apply default index_as mapping unless excluded with not_" do
       @mapper.solr_names_and_values('foo', 'bar', :string, []).should == {
-        'foo_s' => ['bar'],
         'foo_haha' => ["Knock knock. Who's there? Bar. Bar who?"]
       }
       @mapper.solr_names_and_values('foo', 'bar', :string, [:edible, :not_laughable]).should == {
-        'foo_s' => ['bar'],
         'foo_food' => ['bar']
       }
       @mapper.solr_names_and_values('foo', 'bar', :string, [:not_searchable, :not_laughable]).should == {}
@@ -137,14 +135,13 @@ describe Solrizer::FieldMapper do
     it "should skip unknown index types" do
       silence do
         @mapper.solr_names_and_values('foo', 'bar', :string, [:blargle]).should == {
-          'foo_s' => ['bar'],
           'foo_haha' => ["Knock knock. Who's there? Bar. Bar who?"]
         }
       end
     end
     
     it "should generate multiple mappings when two return the _same_ solr name but _different_ values" do
-      @mapper.solr_names_and_values('roll', 'rock', :date, [:unstemmed_searchable, :not_laughable]).should == {
+      @mapper.solr_names_and_values('roll', 'rock', :date, [:unstemmed_searchable, :searchable, :not_laughable]).should == {
         'roll_s' => ["rock o'clock", 'rock']
       }
     end
