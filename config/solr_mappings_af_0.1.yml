@@ -1,18 +1,16 @@
 id: id
-default: searchable
+#default: searchable
 searchable:
-  date: _date
-  string: _field
-  text: _field
-  symbol: _field
-  integer: _field
-  long: _field
-  boolean: _field
-  float: _field
-  double: _field
-displayable: _display
-facetable: _facet
-sortable: _sort
-unstemmed_searchable: _unstem_search
-
-
+  date: _dtim
+  string: _teim
+  text: _teim
+  symbol: _sim
+  integer: _iim
+  long: _lim
+  boolean: _bi
+  float: _fim
+  double: _dbim
+displayable: _ssm
+facetable: _sim
+sortable: _ssort
+unstemmed_searchable: _tim
