@@ -328,28 +328,29 @@ module Solrizer
 
     class Default < FieldMapper
       id_field 'id'
-      index_as :searchable, :default => true do |t|
-        t.default :suffix => '_t'
-        t.date :suffix => '_dt' do |value|
+      
+      index_as :searchable do |type|
+        type.default :suffix => '_teim'
+        type.date :suffix => '_dtim' do |value|
           if value.is_a?(Date) 
             DateTime.parse(value.to_s).to_time.utc.iso8601 
           elsif !value.empty?
             DateTime.parse(value).to_time.utc.iso8601
           end
         end
-        t.string  :suffix => '_t'
-        t.text    :suffix => '_t'
-        t.symbol  :suffix => '_s'
-        t.integer :suffix => '_i'
-        t.long    :suffix => '_l'
-        t.boolean :suffix => '_b'
-        t.float   :suffix => '_f'
-        t.double  :suffix => '_d'
+        type.string  :suffix => '_teim'
+        type.text    :suffix => '_teim'
+        type.symbol  :suffix => '_sim'
+        type.integer :suffix => '_iim'
+        type.long    :suffix => '_lim'
+        type.boolean :suffix => '_bi'
+        type.float   :suffix => '_fim'
+        type.double  :suffix => '_dbim'
       end
-      index_as :displayable,          :suffix => '_display'
-      index_as :facetable,            :suffix => '_facet'
-      index_as :sortable,             :suffix => '_sort'
-      index_as :unstemmed_searchable, :suffix => '_unstem_search'
+      index_as :displayable,          :suffix => '_ssm'
+      index_as :facetable,            :suffix => '_sim'
+      index_as :sortable,             :suffix => '_ssort'
+      index_as :unstemmed_searchable, :suffix => '_tim'
     end
     
   end

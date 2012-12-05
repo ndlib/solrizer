@@ -57,7 +57,7 @@ describe Solrizer::FieldMapper do
       @mapper.solr_name('bar', :string, :laughable).should == 'bar_haha'
     end
 
-    it "should default the index_type to :searchable" do
+    it "should use indicated default suffix type" do
       @mapper.solr_name('foo', :string).should == 'foo_s'
     end
     
@@ -89,7 +89,7 @@ describe Solrizer::FieldMapper do
     
     it "should support scenarios where field_type is nil" do
       mapper = Solrizer::FieldMapper::Default.new
-      mapper.solr_name(:heifer, nil, :searchable).should == "heifer_t"
+      mapper.solr_name(:heifer, nil, :searchable).should == "heifer_teim"
     end
   end
   
@@ -198,26 +198,25 @@ describe Solrizer::FieldMapper do
       @mapper.id_field.should == 'id'
     end
     
-    it "should apply mappings for searchable by default" do
+    it "should NOT apply mappings for searchable by default" do
       # Just sanity check a couple; copy & pasting all data types is silly
-      @mapper.solr_names_and_values('foo', 'bar', :string, []).should == { 'foo_t' => ['bar'] }
-      @mapper.solr_names_and_values('foo', "1", :integer, []).should == { 'foo_i' =>["1"] }
+      @mapper.solr_names_and_values('foo', 'bar', :string, []).should_not == { 'foo_teim' => ['bar'] }
+      @mapper.solr_names_and_values('foo', "1", :integer, []).should_not == { 'foo_iim' =>["1"] }
+      @mapper.solr_names_and_values('foo', '', :date, []).should == {}
     end
 
     it "should support full ISO 8601 dates" do
-      @mapper.solr_names_and_values('foo', "2012-11-06",              :date, []).should == { 'foo_dt' =>["2012-11-06T00:00:00Z"] }
-      @mapper.solr_names_and_values('foo', "November 6th, 2012",      :date, []).should == { 'foo_dt' =>["2012-11-06T00:00:00Z"] }
-      @mapper.solr_names_and_values('foo', Date.parse("6 Nov. 2012"), :date, []).should == { 'foo_dt' =>["2012-11-06T00:00:00Z"] }
-      @mapper.solr_names_and_values('foo', '', :date, []).should == { 'foo_dt' => [] }
+      @mapper.solr_names_and_values('foo', "2012-11-06",              :date, [:searchable]).should == { 'foo_dtim' =>["2012-11-06T00:00:00Z"] }
+      @mapper.solr_names_and_values('foo', "November 6th, 2012",      :date, [:searchable]).should == { 'foo_dtim' =>["2012-11-06T00:00:00Z"] }
+      @mapper.solr_names_and_values('foo', Date.parse("6 Nov. 2012"), :date, [:searchable]).should == { 'foo_dtim' =>["2012-11-06T00:00:00Z"] }
     end
     
     it "should support displayable, facetable, sortable, unstemmed" do
       @mapper.solr_names_and_values('foo', 'bar', :string, [:displayable, :facetable, :sortable, :unstemmed_searchable]).should == {
-        'foo_t' => ['bar'],
-        'foo_display' => ['bar'],
-        'foo_facet' => ['bar'],
-        'foo_sort' => ['bar'],
-        'foo_unstem_search' => ['bar'],
+        'foo_ssm' => ['bar'],
+        'foo_sim' => ['bar'],
+        'foo_ssort' => ['bar'],
+        'foo_tim' => ['bar'],
       }
     end
   end

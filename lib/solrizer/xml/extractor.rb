@@ -2,8 +2,7 @@ require "xmlsimple"
 
 module Solrizer::XML::Extractor
 
-  #
-  # This method extracts solr fields from simple xml
+  # This method extracts solr fields from simple xml.
   # If you want to do anything more nuanced with the xml, use TerminologyBasedSolrizer instead.
   #
   # @param [xml] text xml content to index
@@ -15,14 +14,14 @@ module Solrizer::XML::Extractor
       if value.kind_of?(Array) 
         if value.first.kind_of?(Hash)
           # This deals with the way xml-simple handles nodes with attributes
-          solr_doc.merge!({:"#{name}_t" => "#{value.first["content"]}"})
+          solr_doc.merge!({:"#{name}_teim" => "#{value.first["content"]}"})
         elsif value.length > 1
-          solr_doc.merge!({:"#{name}_t" => value})
+          solr_doc.merge!({:"#{name}_teim" => value})
         else
-          solr_doc.merge!({:"#{name}_t" => "#{value.first}"})
+          solr_doc.merge!({:"#{name}_teim" => "#{value.first}"})
         end
       else
-        solr_doc.merge!({:"#{name}_t" => "#{value}"})
+        solr_doc.merge!({:"#{name}_teim" => "#{value}"})
       end
     end
 

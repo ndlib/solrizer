@@ -46,21 +46,19 @@ describe Solrizer::XML::TerminologyBasedSolrizer do
       #should have these
       
       solr_doc["abstract"].should be_nil
-      solr_doc["abstract_t"].should == ["ABSTRACT"]
-      solr_doc["title_info_1_language_t"].should == ["finnish"]
-      solr_doc["person_1_role_0_text_t"].should == ["teacher"]
+      solr_doc["abstract_teim"].should == ["ABSTRACT"]
+      solr_doc["title_info_1_language_sim"].should == ["finnish"]
+      solr_doc["person_1_role_0_text_teim"].should == ["teacher"]
       # No index_as on the code field.
-      solr_doc["person_1_role_0_code_t"].should be_nil 
-      solr_doc["person_last_name_t"].sort.should == ["FAMILY NAME", "Gautama"]
-      solr_doc["topic_tag_t"].sort.should == ["CONTROLLED TERM", "TOPIC 1", "TOPIC 2"]
+      solr_doc["person_1_role_0_code_teim"].should be_nil 
+      solr_doc["person_last_name_teim"].sort.should == ["FAMILY NAME", "Gautama"]
+      solr_doc["topic_tag_sim"].sort.should == ["CONTROLLED TERM", "TOPIC 1", "TOPIC 2"]
       
       # These are a holdover from an old verison of OM
-      solr_doc['journal_0_issue_0_publication_date_dt'].should == ["2007-02-01T00:00:00Z"]
-
-      
+      solr_doc['journal_0_issue_0_publication_date_dtim'].should == ["2007-02-01T00:00:00Z"]
     end
-    
-  end
+  end  # .to_solr
+
 
   describe ".solrize_term" do
   
@@ -79,7 +77,7 @@ describe Solrizer::XML::TerminologyBasedSolrizer do
       @mods_article.solrize_term(term, fake_solr_doc)
       
       expected_names = ["DR.", "FAMILY NAME", "GIVEN NAMES"]
-      %w(_t _display _facet).each do |suffix|
+      %w(_ssm _sim).each do |suffix|
         actual_names = fake_solr_doc["name_0_namePart#{suffix}"].sort
         {suffix => actual_names}.should == {suffix => expected_names}
       end
@@ -89,14 +87,14 @@ describe Solrizer::XML::TerminologyBasedSolrizer do
       unless RUBY_VERSION.match("1.8.7")
         solr_doc = Hash.new
         result = @mods_article.solrize_term(Samples::ModsArticle.terminology.retrieve_term(:pub_date), solr_doc)
-        solr_doc["pub_date_dt"].should == ["2007-02-01T00:00:00Z"]
+        solr_doc["pub_date_dtim"].should == ["2007-02-01T00:00:00Z"]
       end
     end
 
     it "should add fields based on type using ref" do
       solr_doc = Hash.new
       result = @mods_article.solrize_term(Samples::ModsArticle.terminology.retrieve_term(:issue_date), solr_doc)
-      solr_doc["issue_date_dt"].should == ["2007-02-15T00:00:00Z"]
+      solr_doc["issue_date_dtim"].should == ["2007-02-15T00:00:00Z"]
     end
 
     it "shouldn't index terms where index_as is an empty array" do
@@ -105,7 +103,7 @@ describe Solrizer::XML::TerminologyBasedSolrizer do
       term.children[:namePart].index_as = []# [:displayable, :facetable]
 
       @mods_article.solrize_term(term, fake_solr_doc)
-      fake_solr_doc["name_0_namePart_t"].should be_nil
+      fake_solr_doc["name_0_namePart_teim"].should be_nil
     end
 
     it "shouldn't index terms where index_as is searchable" do
@@ -115,7 +113,7 @@ describe Solrizer::XML::TerminologyBasedSolrizer do
 
       @mods_article.solrize_term(term, fake_solr_doc)
       
-      fake_solr_doc["name_0_namePart_t"].sort.should == ["DR.", "FAMILY NAME", "GIVEN NAMES"]
+      fake_solr_doc["name_0_namePart_teim"].sort.should == ["DR.", "FAMILY NAME", "GIVEN NAMES"]
     end
     
   end
@@ -123,12 +121,19 @@ describe Solrizer::XML::TerminologyBasedSolrizer do
   describe ".solrize_node" do
     it "should optionally allow you to provide the Hash to add fields to and return that document when done" do
       doc = Hash.new
-      # @mods_article.solrize_node(node, term_pointer, term, solr_doc).should equal(doc)
+#      @mods_article.solrize_node(node, term_pointer, term, solr_doc).should equal(doc)
+      pending "to be implemented"
     end
     
-    it "should create a solr field containing node.text"
-    it "should create hierarchical field entries if parents is not empty"
-    it "should only create one node if parents is empty"
+    it "should create a solr field containing node.text" do
+      pending "to be implemented"
+    end
+    it "should create hierarchical field entries if parents is not empty" do
+      pending "to be implemented"
+    end
+    it "should only create one node if parents is empty" do
+      pending "to be implemented"
+    end
   end
 
 end
