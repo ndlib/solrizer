@@ -41,18 +41,23 @@ require "solrizer"
 
 h3. Field Mapper
 
-The FieldMapper maps term names and values to Solr fields, based on the term’s data type and any index_as options.  Solrizer comes with default mappings (which are defined in the config/solr_mappings.yml):
+The FieldMapper maps term names and values to Solr fields, based on the term’s data type and any index_as options.  Solrizer comes with default mappings (which are defined in the config/solr_mappings.yml) to dynamic field types defined in the Hydra Solr schema.xml file.  A copy of that is available 
+  https://github.com/projecthydra/hydra-head/blob/master/hydra-core/lib/generators/hydra/templates/solr_conf/conf/schema.xml
+
+More information on the conventions followed for the dynamic solr fields is here:
+  https://github.com/projecthydra/hydra-head/wiki/Solr-Schema
 
 <pre>
 default_mapper = Solrizer::FieldMapper::Default.new
 
 # some of the default mappings in solrizer
-default_mapper.solr_name("foo",:string)                 # returns foo_t
-default_mapper.solr_name("foo",:date)                   # returns foo_dt
-default_mapper.solr_name("foo",:integer)                # returns foo_i
-default_mapper.solr_name("foo",:string,:facetable)      # returns foo_facet
-default_mapper.solr_name("foo",:text,:facetable)        # returns foo_facet
-default_mapper.solr_name("foo",:integer,:facetable)     # returns foo_facet
+default_mapper.solr_name("foo",:string,:searchable)     # returns foo_teim
+default_mapper.solr_name("foo",:date,:searchable)       # returns foo_dtim
+default_mapper.solr_name("foo",:integer,:searchable     # returns foo_iim
+default_mapper.solr_name("foo",:string,:facetable)      # returns foo_sim
+default_mapper.solr_name("foo",:integer,:facetable)     # returns foo_iim
+default_mapper.solr_name("foo",:string,:sortable)       # returns foo_ssort
+default_mapper.solr_name("foo",:string,:displayable)    # returns foo_ssm
 </pre>
 
 FieldMapper provides some defaults:
@@ -62,11 +67,13 @@ default_mapper.solr_names_and_values("foo","bar",:string,[:facetable])          
 default_mapper.solr_names_and_values("foo","bar",:string,[:not_searchable, :facetable])   # returns just facetable => {"foo_facet"=>["bar"]}
 </pre>
 
-Which can be tweaked:
+FieldMapper allows defaults:
 
 <pre>
-default_mapper.default_index_types << :facetable
-default_mapper.solr_names_and_values("foo","bar",:string,[])                              # returns searchable and facetable by default => {"foo_facet"=>["bar"], "foo_t"=>["bar"]}
+default_mapper.default_index_types << :searchble
+default_mapper.solr_names_and_values("foo","bar",:string,[])                              # returns searchable by default => {"foo_teim"=>["bar"]}
+default_mapper.default_index_types << :displayable
+default_mapper.solr_names_and_values("foo","bar",:string,[])                              # returns searchable and facetable by default => {"foo_ssm"=>["bar"], "foo_teim"=>["bar"]}
 </pre>
 
 Custom Mappings can also be provided (with custom converters):
@@ -113,7 +120,7 @@ h4. Solrizer provides some default mixins:
 <pre>
 xml = "<fields><foo>bar</foo><bar>baz</bar></fields>"
 
-extractor.xml_to_solr(xml)      # returns {:foo_t=>"bar", :bar_t=>"baz"}
+extractor.xml_to_solr(xml)      # returns {:foo_teim=>"bar", :bar_teim=>"baz"}
 </pre>
 
 h4. Solrizer::XML::TerminologyBasedSolrizer
