@@ -58,7 +58,7 @@ describe Solrizer::FieldMapper do
     end
 
     it "should use indicated default suffix type" do
-      @mapper.solr_name('foo', :string).should == 'foo_s'
+      @mapper.solr_name('foo', :string, :searchable).should == 'foo_s'
     end
     
     it "should map based on data type" do
@@ -75,8 +75,8 @@ describe Solrizer::FieldMapper do
     
     it "should allow subclasses to selectively override suffixes" do
       @mapper = TestMapper1.new
-      @mapper.solr_name('foo', :date).should == 'foo_d'   # override
-      @mapper.solr_name('foo', :string).should == 'foo_s' # from super
+      @mapper.solr_name('foo', :date, :searchable).should == 'foo_d'   # override
+      @mapper.solr_name('foo', :string, :searchable).should == 'foo_s' # from super
       @mapper.solr_name('foo', :integer, :fungible).should == 'foo_f5'  # override on data type
       @mapper.solr_name('foo', :garble,  :fungible).should == 'foo_f4'  # override on data type
       @mapper.solr_name('foo', :fratz,   :fungible).should == 'foo_f2'  # from super
@@ -84,12 +84,25 @@ describe Solrizer::FieldMapper do
     end
     
     it "should support field names as symbols" do
-      @mapper.solr_name(:active_fedora_model, :symbol).should == "active_fedora_model_s"
+      @mapper.solr_name(:active_fedora_model, :symbol, :searchable).should == "active_fedora_model_s"
     end
     
     it "should support scenarios where field_type is nil" do
       mapper = Solrizer::FieldMapper::Default.new
       mapper.solr_name(:heifer, nil, :searchable).should == "heifer_teim"
+    end
+    
+    it "should support dynamic field suffixes as strings beginning with underscore" do
+      mapper = Solrizer::FieldMapper::Default.new
+      mapper.solr_name('seuss', nil, '_sim').should == "seuss_sim"
+    end
+    it "should support dynamic field suffixes as strings not beginning with underscore" do
+      mapper = Solrizer::FieldMapper::Default.new
+      mapper.solr_name('seuss', nil, 'sim').should == "seuss_sim"
+    end
+    it "should not support dynamic field suffixes as symbols" do
+      mapper = Solrizer::FieldMapper::Default.new
+      mapper.solr_name('seuss', nil, :sim).should == nil
     end
   end
   

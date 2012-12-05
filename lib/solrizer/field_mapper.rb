@@ -222,10 +222,13 @@ module Solrizer
       @default_index_types = @mappings.select { |ix_type, mapping| mapping.opts[:default] }.map(&:first)
     end
 
-    # Given a specific field name, data type, and index type, returns the corresponding solr name.
-    
-    def solr_name(field_name, field_type, index_type = :searchable)
-      name, mapping, data_type_mapping = solr_name_and_mappings(field_name, field_type, index_type)
+    # Given a field name, data type, and index type, returns the corresponding solr name.
+    # @param [String] field_name the ruby (term) name which will get a suffix appended to become a solr field name
+    # @param [String] data_type the ruby (term) type which can impact the suffix chosen
+    # @param [String] index_type one of the mappings for index_as
+    # @return [String] name of the solr field, based on the params
+    def solr_name(field_name, data_type, index_type)
+      name, mapping, data_type_mapping = solr_name_and_mappings(field_name, data_type, index_type)
       name
     end
 
@@ -279,8 +282,17 @@ module Solrizer
     def solr_name_and_mappings(field_name, field_type, index_type)
       field_name = field_name.to_s
       mapping = @mappings[index_type]
+      if mapping.nil? && index_type.is_a?(String)
+          mapping = Solrizer::FieldMapper::IndexTypeMapping.new
+          if index_type.start_with?('_')
+            mapping.opts[:suffix] = index_type
+          else
+             mapping.opts[:suffix] = "_#{index_type}"
+          end
+        else
+      end
       unless mapping
-        logger.debug "Unknown index type '#{index_type}' for field #{field_name}"
+        logger.warn "Unknown index type '#{index_type}' for field #{field_name}; assigning nil as solr field name"
         return nil
       end
       
