@@ -15,8 +15,9 @@ module Solrizer::FieldNameMapper
     # Re-loads solr mappings for the default field mapper's class 
     # and re-sets the default field mapper to an FieldMapper instance with those mappings.
     def load_mappings( config_path=nil)
-      self.default_field_mapper.class.load_mappings(config_path)
-      self.default_field_mapper = self.default_field_mapper.class.new
+      klass = Class.new(Solrizer::FieldMapper)
+      klass.load_mappings(config_path)
+      self.default_field_mapper = klass.new
     end
     
     def solr_name(field_name, field_type, index_type = :searchable)
