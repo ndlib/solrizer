@@ -28,7 +28,7 @@ describe Solrizer::XML::TerminologyBasedSolrizer do
       doc = Hash.new
       @mods_article.to_solr(doc).should equal(doc)
     end
-  
+
     it "should iterate through the terminology terms, calling .solrize_term on each and passing in the solr doc" do
       # mock_terms = {:name1=>:term1, :name2=>:term2}
       # ActiveFedora::NokogiriDatastream.stubs(:accessors).returns(mock_accessors)
@@ -41,18 +41,19 @@ describe Solrizer::XML::TerminologyBasedSolrizer do
     end
   
     it "should use Solr mappings to generate field names" do
-
       solr_doc =  @mods_article.to_solr
       #should have these
       
       solr_doc["abstract"].should be_nil
       solr_doc["abstract_t"].should == ["ABSTRACT"]
-      solr_doc["title_info_1_language_t"].should == ["finnish"]
+      solr_doc["title_info_1_language_facet"].should == ["finnish"]
+      solr_doc["title_info_1_language_t"].should be_nil
       solr_doc["person_1_role_0_text_t"].should == ["teacher"]
       # No index_as on the code field.
       solr_doc["person_1_role_0_code_t"].should be_nil 
       solr_doc["person_last_name_t"].sort.should == ["FAMILY NAME", "Gautama"]
-      solr_doc["topic_tag_t"].sort.should == ["CONTROLLED TERM", "TOPIC 1", "TOPIC 2"]
+      solr_doc["topic_tag_facet"].sort.should == ["CONTROLLED TERM", "TOPIC 1", "TOPIC 2"]
+      solr_doc["topic_tag_t"].should be_nil
       
       # These are a holdover from an old verison of OM
       solr_doc['journal_0_issue_0_publication_date_dt'].should == ["2007-02-01T00:00:00Z"]
@@ -79,7 +80,7 @@ describe Solrizer::XML::TerminologyBasedSolrizer do
       @mods_article.solrize_term(term, fake_solr_doc)
       
       expected_names = ["DR.", "FAMILY NAME", "GIVEN NAMES"]
-      %w(_t _display _facet).each do |suffix|
+      %w(_display _facet).each do |suffix|
         actual_names = fake_solr_doc["name_0_namePart#{suffix}"].sort
         {suffix => actual_names}.should == {suffix => expected_names}
       end
@@ -117,7 +118,16 @@ describe Solrizer::XML::TerminologyBasedSolrizer do
       
       fake_solr_doc["name_0_namePart_t"].sort.should == ["DR.", "FAMILY NAME", "GIVEN NAMES"]
     end
-    
+
+    it "shouldn't index terms as searchable if it isn't specified in index_as" do
+      term = Samples::ModsArticle.terminology.retrieve_term(:name)
+      term.children[:namePart].index_as = [:displayable]
+
+      solr_doc = @mods_article.solrize_term(term)
+
+      solr_doc["name_0_namePart_t"].should be_nil
+    end
+
   end
 
   describe ".solrize_node" do

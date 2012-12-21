@@ -328,7 +328,7 @@ module Solrizer
 
     class Default < FieldMapper
       id_field 'id'
-      index_as :searchable, :default => true do |t|
+      index_as :searchable do |t|
         t.default :suffix => '_t'
         t.date :suffix => '_dt' do |value|
           if value.is_a?(Date) 
